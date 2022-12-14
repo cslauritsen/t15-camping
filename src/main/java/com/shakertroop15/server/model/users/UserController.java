@@ -9,10 +9,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -20,6 +18,8 @@ import java.util.stream.Collectors;
 @Controller
 public class UserController {
 
+    public static final String USERS_RESPONSE = "USERS_RESPONSE";
+    public static final String USER_TOKEN = "USER_TOKEN";
     @Value("${app.troopTrack.partnerToken}")
     private String partnerToken;
 
@@ -29,10 +29,9 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
-    @GetMapping("/user/login")
+    @PostMapping("/user/login")
     public ResponseEntity<TokenResponse> login(HttpSession session, @RequestParam String login, @RequestParam String password) {
-        WebClient client = WebClient.create();
-
+        var client = WebClient.create();
         var response = client.post()
                 .uri(baseUrl + "/tokens")
                 .header("X-Partner-Token", partnerToken)
@@ -44,7 +43,6 @@ public class UserController {
                 .block();
 
         var tokenResponse = response.getBody();
-        log.info("Token response: " + tokenResponse.toString());
         var privs = tokenResponse.getUsers().stream().findFirst().map(
                 u -> u.getPrivileges().stream().collect(Collectors.joining(", "))
         ).orElse("wooga");
@@ -56,9 +54,8 @@ public class UserController {
                 .orElseThrow();
 
         log.info("User {} logged in with privileges {}", login, privs);
-        log.info("User {} token: '{}'", login, userTok);
 
-        session.setAttribute("USER_TOKEN", userTok);
+        session.setAttribute(USER_TOKEN, userTok);
 
         return response;
     }
@@ -71,21 +68,27 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<List<User>> getAllUsers(HttpSession session) {
-        if (isEmpty(session.getAttribute("USER_TOKEN"))) {
-            return ResponseEntity.status(401).build();
+    public ResponseEntity<UsersResponse> getAllUsers(HttpSession session) {
+        if (session.getAttribute(USER_TOKEN) instanceof String userToken) {
+            var ur = Optional.ofNullable(session.getAttribute(USERS_RESPONSE))
+                    .map(obj -> (UsersResponse) obj)
+                    .orElseGet(() -> {
+                        var client = WebClient.create();
+                        var response = client.get()
+                                .uri(baseUrl + "/users")
+                                .header("X-Partner-Token", partnerToken)
+                                .header("X-User-Token", userToken)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .retrieve()
+                                .toEntity(UsersResponse.class)
+                                .block();
+                        var body = response.getBody();
+                        session.setAttribute(USERS_RESPONSE, body);
+                        return response.getBody();
+                    });
+            return ResponseEntity.ok(ur);
         }
-        WebClient client = WebClient.create();
-
-        var response = client.get()
-                .uri(baseUrl + "/users")
-                .header("X-Partner-Token", partnerToken)
-                .header("X-User-Token", session.getAttribute("USER_TOKEN").toString())
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .toEntity(TokenResponse.class)
-                .block();
-
+        return ResponseEntity.status(401).build();
     }
 
     @GetMapping("/user/{ttid}")
