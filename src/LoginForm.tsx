@@ -4,9 +4,10 @@ import UserTable from "./UserTable";
 import apiToken from "./apiToken";
 import {Suspense} from "react";
 import Cookies from 'universal-cookie';
-import { useCookies } from 'react-cookie';
+import {useCookies} from 'react-cookie';
 import {ttTok} from "./cookies";
 import UserList from "./UserList";
+
 export default function LoginForm(props: any) {
     const [user, setUser] = useState('');
     const [pass, setPass] = useState('');
@@ -34,16 +35,17 @@ export default function LoginForm(props: any) {
             <Form onSubmit={event => {
                 event.preventDefault();
                 setErrMsg('');
-                const req = new Request('https://shakertroop15.trooptrack.com/api/v1/tokens',
+                const req = new Request(`${window.location.protocol}//${window.location.hostname}:8080/user/login`,
                     {
                         method: "POST",
                         redirect: 'follow',
+                        credentials: 'include',
                         headers: new Headers({
-                            'Accept': 'application/json',
-                            'X-Partner-Token': apiToken,
-                            'X-Username': user,
-                            'X-User-Password': pass,
-                        }),
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                            },
+                        ),
+                        body: `login=${encodeURIComponent(user)}&password=${encodeURIComponent(pass)}`,
                     });
                 fetch(req)
                     .then(res => {
@@ -74,8 +76,10 @@ export default function LoginForm(props: any) {
                     <Col>
                         <Form.Group className={'mb-3'}>
                             <Form.Label>Login</Form.Label>
-                            <Form.Control type={'text'} placeholder={'TroopTrack Login'} name={'ttlogin'}
-                                          onBlur={e => setUser(e.target.value)}
+                            <Form.Control type={'text'}
+                                          placeholder={'TroopTrack Login'}
+                                          name={'ttlogin'}
+                                          onChange={e => setUser(e.target.value)}
                             />
                         </Form.Group>
                     </Col>
@@ -83,8 +87,10 @@ export default function LoginForm(props: any) {
                 <Row xxl={6}>
                     <Form.Group className={'mb-3'}>
                         <Form.Label>Password</Form.Label>
-                        <Form.Control type={'password'} placeholder={'TroopTrack Password'} name={'ttpassword'}
-                                      onBlur={e => setPass(e.target.value)}
+                        <Form.Control type={'password'}
+                                      placeholder={'TroopTrack Password'}
+                                      name={'ttpassword'}
+                                      onChange={e => setPass(e.target.value)}
                         />
                     </Form.Group>
                 </Row>

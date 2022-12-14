@@ -1,9 +1,11 @@
 import apiToken from "./apiToken";
 import {useQuery} from 'react-query'
-import {Col, Container, Spinner, Row} from "react-bootstrap";
+import {Col, Container, Spinner, Row, Form} from "react-bootstrap";
 import AnnualFeeButton from "./AnnualFeeButton";
 
 import styles from './UserList.module.css';
+import {useMemo} from "react";
+import {Checkbox} from "./Checkbox";
 
 interface Props {
     userToken: string;
@@ -11,19 +13,21 @@ interface Props {
 
 export default function UserList(props: Props) {
     const {isLoading, isError, error, data} = useQuery('allUsers', () =>
-        fetch(new Request('https://shakertroop15.trooptrack.com/api/v1/users',
+        fetch(new Request(`${window.location.protocol}//${window.location.hostname}:8080/users`,
             {
                 method: "GET",
                 redirect: 'follow',
+                credentials: 'include',
                 headers: new Headers({
                     'Accept': 'application/json',
-                    'X-Partner-Token': apiToken,
-                    'X-User-Token': props?.userToken,
                 }),
             })).then(res =>
             res.json()
         )
     );
+
+    const scouts = useMemo(() => data?.users?.filter((u: any) => !!u.scout), [data]);
+    const adults = useMemo(() => data?.users?.filter((u: any) => !u.scout), [data]);
 
     if (isLoading) {
         return <Spinner animation={'grow'}/>;
@@ -36,28 +40,45 @@ export default function UserList(props: Props) {
     } else {
         return (
             <>
-                <h2>Users</h2>
-                <Container>
-                    <Row sm={12} lg={12}>
-                        <Col sm={1} lg={1} className={[styles.hdr, 'd-sm-none', 'd-md-block'].join(' ')}>ID</Col>
-                        <Col sm={4} lg={4} className={[styles.hdr, 'd-sm-block'].join(' ')}>Name</Col>
-                        <Col sm={4} lg={4} className={[styles.hdr, 'd-none', 'd-sm-block'].join(' ')}>Email</Col>
-                        <Col sm={2} lg={1} className={[styles.hdr, 'd-sm-block'].join(' ')}>Scout?</Col>
-                        <Col sm={2} lg={1} className={[styles.hdr, 'd-sm-block'].join(' ')}>Annual Fee?</Col>
-                    </Row>
-                    {data.users.map((u: any) => (
-                            <Row key={u.user_id} sm={12} lg={12}>
-                                <Col sm={1} lg={1} className={[styles.textRight, 'd-sm-none', 'd-md-block'].join(' ')}>{u?.user_id}</Col>
-                                <Col sm={4} lg={4} className={[styles.textLeft, 'd-sm-block'].join(' ')}>{u?.last_name}, {u?.first_name}</Col>
-                                <Col sm={4} lg={4} className={[styles.textLeft, 'd-none', 'd-sm-block'].join(' ')}>{u?.email}</Col>
-                                <Col sm={2} lg={1} className={[styles.textCenter, 'd-sm-block'].join(' ')}>{u?.scout ? '✅' : '❌'}</Col>
-                                <Col sm={2} lg={1} className={[styles.textCenter, 'd-sm-block'].join(' ')}><AnnualFeeButton user={u}/></Col>
-                            </Row>
-                        )
-                    )}
-                </Container>
+                <Cntr title={'Scouts'} list={scouts}/>
+                <Cntr title={'Adults'} list={adults}/>
             </>
         );
     }
 
+}
+
+function Cntr({title, list}: any) {
+    return (
+        <>
+            <h2>{title}</h2>
+            <Container>
+                <Row xs={8} lg={12}>
+                    <Col xs={0} lg={1} className={[styles.hdr, styles.textRight, 'd-none', 'd-sm-none', 'd-md-block'].join(' ')}>ID</Col>
+                    <Col xs={4} lg={4} className={[styles.hdr, styles.textLeft, 'd-sm-block'].join(' ')}>Name</Col>
+                    <Col xs={0} lg={4} className={[styles.hdr, styles.textLeft, 'd-none', 'd-md-block'].join(' ')}>Email</Col>
+                    {/*<Col xs={2} lg={1} className={[styles.hdr, styles.textLeft, 'd-sm-block'].join(' ')}>Scout?</Col>*/}
+                    <Col xs={2} lg={1} className={[styles.hdr, styles.Center, 'd-sm-block'].join(' ')}>Annual Fee?</Col>
+                    <Col xs={2} lg={1} className={[styles.hdr, styles.Center, 'd-sm-block'].join(' ')}>Active?</Col>
+                </Row>
+                {list.map((u: any) => (
+                        <Row key={u.user_id} xs={8} lg={12}>
+                            <Col xs={0} lg={1}
+                                 className={[styles.textRight, 'd-none', 'd-sm-none', 'd-md-block'].join(' ')}>{u?.user_id}</Col>
+                            <Col xs={4} lg={4}
+                                 className={[styles.textLeft, 'd-sm-block'].join(' ')}>{u?.last_name}, {u?.first_name}</Col>
+                            <Col xs={0} lg={4}
+                                 className={[styles.textLeft, 'd-none', 'd-md-block'].join(' ')}>{u?.email}</Col>
+                            {/*<Col xs={2} lg={1} className={[styles.textCenter, 'd-sm-block'].join(' ')}>{u?.scout ? '✅' : '❌'}</Col>*/}
+                            <Col xs={2} lg={1} className={[styles.textCenter, 'd-sm-block'].join(' ')}><AnnualFeeButton
+                                user={u}/></Col>
+                            <Col xs={2} lg={1} className={[styles.hdr, styles.Center, 'd-sm-block'].join(' ')}>
+                               <Checkbox checked={!!u.active}  onChange={(checked: boolean) => u.active = checked} />
+                            </Col>
+                        </Row>
+                    )
+                )}
+            </Container>
+        </>
+    );
 }
