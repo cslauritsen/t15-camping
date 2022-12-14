@@ -1,26 +1,54 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import LoginForm from "./LoginForm";
+import {Button, Container, Row, Col} from "react-bootstrap";
+import {Navigation} from './Navigation'
+import {ttTok} from "./cookies";
+
+import {useQueryErrorResetBoundary} from "react-query";
+import {ErrorBoundary} from "react-error-boundary";
+import {useCookies} from "react-cookie";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    const {reset} = useQueryErrorResetBoundary();
+    const [cookies, setCookie, removeCookie] = useCookies([ttTok]);
+    return (
+        <>
+            <Navigation/>
+            <ErrorBoundary
+                onReset={reset}
+                fallbackRender={({resetErrorBoundary}) => (
+                    <main style={{position: "relative", top: "100px"}}>
+                        <Container>
+                            <Row>
+                                <Col>
+                                    There was an error!
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col>
+                                    <Button onClick={() => resetErrorBoundary()}>Try again</Button>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col>
+                                    <Button onClick={() => {
+                                        removeCookie(ttTok);
+                                        resetErrorBoundary();
+                                    }}>Logout</Button>
+                                </Col>
+                            </Row>
+                        </Container>
+                    </main>
+                )}
+            >
+                <div className="App">
+                    <LoginForm/>
+                </div>
+            </ErrorBoundary>
+        </>
+    )
+        ;
 }
 
 export default App;
