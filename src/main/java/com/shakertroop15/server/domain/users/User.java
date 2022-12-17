@@ -1,12 +1,10 @@
-package com.shakertroop15.server.model.users;
+package com.shakertroop15.server.domain.users;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.util.List;
 
 @Data
 @Document("users")
@@ -15,7 +13,6 @@ public class User {
     @Id
     private String userId;
     private Long ttid;
-    private Boolean annualFee;
     private String firstName;
     private String lastName;
     private String middleName;
@@ -37,4 +34,8 @@ public class User {
 //    private Long patrolId;
     private String troopNumber;
     private String bornOn;
+
+    // Troop-15-specific fields
+    private Boolean annualFee;
+    private Boolean active;
 }

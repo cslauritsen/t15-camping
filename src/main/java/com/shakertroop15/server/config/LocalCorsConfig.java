@@ -22,6 +22,7 @@ public class LocalCorsConfig {
         config.addAllowedOrigin("http://localhost:8081");
         config.addAllowedOrigin("http://localhost:9080");
         config.addAllowedOrigin("http://192.168.1.138:3000");
+        config.addAllowedOrigin("http://t15.camping:3000");
         config.addAllowedOrigin("http://localhost");
         config.addAllowedOrigin("https://localhost");
         config.addAllowedHeader("*");

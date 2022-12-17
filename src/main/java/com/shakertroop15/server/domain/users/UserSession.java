@@ -1,4 +1,4 @@
-package com.shakertroop15.server.model.users;
+package com.shakertroop15.server.domain.users;
 
 import lombok.Data;
 import org.springframework.context.annotation.Scope;

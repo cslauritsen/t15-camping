@@ -1,10 +1,11 @@
-package com.shakertroop15.server.model.users;
+package com.shakertroop15.server.domain.users;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -80,8 +81,14 @@ public class UserController {
                                 .header("X-User-Token", userToken)
                                 .accept(MediaType.APPLICATION_JSON)
                                 .retrieve()
+//                                .onStatus(HttpStatus::is4xxClientError, clientResponse -> {
+//                                    log.error("Error getting users: {}", clientResponse.statusCode());
+//                                    return clientResponse.createException();
+//                                })
+//                                .bodyToMono(UsersResponse.class)
                                 .toEntity(UsersResponse.class)
-                                .block();
+                                .block()
+                                ;
                         var body = response.getBody();
                         session.setAttribute(USERS_RESPONSE, body);
                         return response.getBody();

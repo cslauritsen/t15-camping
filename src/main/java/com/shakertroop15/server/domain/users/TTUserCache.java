@@ -1,4 +1,4 @@
-package com.shakertroop15.server.model.users;
+package com.shakertroop15.server.domain.users;
 
 import com.google.common.cache.LoadingCache;
 import lombok.extern.java.Log;
