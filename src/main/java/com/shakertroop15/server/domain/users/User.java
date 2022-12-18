@@ -12,7 +12,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class User {
     @Id
     private String userId;
-    private Long ttid;
     private String firstName;
     private String lastName;
     private String middleName;
@@ -36,6 +35,43 @@ public class User {
     private String bornOn;
 
     // Troop-15-specific fields
-    private Boolean annualFee;
-    private Boolean active;
+    private boolean annualFee = false;
+    private boolean active = true;
+    private boolean deleted = false;
+    
+    public static void map(User src, User dest) {
+        dest.userId = src.userId;
+        dest.firstName = src.firstName;
+        dest.lastName = src.lastName;
+        dest.middleName = src.middleName;
+        dest.email = src.email;
+        dest.cellPhone = src.cellPhone;
+        dest.homePhone = src.homePhone;
+        dest.workPhone = src.workPhone;
+        dest.gender = src.gender;
+        dest.scout = src.scout;
+        dest.employer = src.employer;
+        dest.occupation = src.occupation;
+        dest.maritalStatus = src.maritalStatus;
+        dest.currentPosition = src.currentPosition;
+        dest.currentRank = src.currentRank;
+        dest.currentRankTracker = src.currentRankTracker;
+        dest.currentRankTrackerPercentComplete = src.currentRankTrackerPercentComplete;
+        dest.avatar = src.avatar;
+        dest.patrol = src.patrol;
+//    dest.patrolId = src.patrolId;
+        dest.troopNumber = src.troopNumber;
+        dest.bornOn = src.bornOn;
+
+        // Troop-15-specific fields
+        dest.active = src.active;
+        dest.annualFee  = src.annualFee;
+        dest.deleted = src.deleted;
+    }
+
+    public User copy() {
+        User user = new User();
+        map(this, user);
+        return user;
+    }
 }

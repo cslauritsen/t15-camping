@@ -6,8 +6,8 @@ import org.springframework.data.mongodb.repository.Query;
 import java.util.Optional;
 
 public interface UserRepository extends MongoRepository<User, String> {
-    @Query("{ttid: ?0}")
-    Optional<User> findByTtid(long ttid);
+    @Query("{userId: ?0}")
+    Optional<User> findByUserId(String userId);
 
     long count();
 }

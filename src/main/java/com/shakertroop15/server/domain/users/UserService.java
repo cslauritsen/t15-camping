@@ -7,6 +7,8 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -22,51 +24,31 @@ public class UserService {
     @Value("${app.troopTrack.baseUrl}")
     private String baseUrl;
 
-    public Map<Long, User> syncUsers(UsersResponse usersResponse) {
-        var client = WebClient.create();
-        var apiMap = usersResponse
-                .getUsers()
-                .stream()
-                .parallel()
-                .collect(Collectors.toMap(User::getTtid, Function.identity()));
-        var dbMap = userRepository
-                .findAll()
-                .stream()
-                .parallel()
-                .collect(Collectors.toMap(User::getTtid, Function.identity()));
-        dbMap
-                .values()
-                .stream()
-                .parallel()
-                .map(u -> apiMap.computeIfPresent(u.getTtid(), (k, v) -> {
-                    v.setActive(u.getActive());
-                    v.setAnnualFee(u.getAnnualFee());
-                    return v;
-                }))
-                .collect(Collectors.toMap(User::getTtid, Function.identity()));
+    public void syncApiUsersToDatabase(List<User> apiUsers) {
+        var apiMap = apiUsers.stream().parallel()
+                .collect(Collectors.toMap(User::getUserId, Function.identity()));
 
-        // add to the dbmap any users that are in the apiMap but not in the dbMap
-        // synchronize values from the dbMap to the apiMap
-        apiMap
-                .values()
+        apiMap.values()
                 .stream()
-                .parallel()
-                .map(u ->
-                        {
-                            var dbUser = dbMap.computeIfAbsent(u.getTtid(), (k) -> {
-                                u.setActive(true);
-                                u.setAnnualFee(false);
-                                return u;
-                            });
-                            u.setAnnualFee(dbUser.getAnnualFee());
-                            u.setActive(dbUser.getActive());
-                            return u;
-                        }
-                );
-
-        // save all the users
-        userRepository.saveAll(apiMap.values());
-
-        return apiMap;
+                .forEach(apiUser -> {
+                    var dbUser = userRepository.findByUserId(apiUser.getUserId()).orElse(apiUser);
+                    boolean annualFee = dbUser.isAnnualFee();
+                    boolean active = dbUser.isActive();
+                    boolean deleted = dbUser.isDeleted();
+                    User.map(apiUser, dbUser);
+                    dbUser.setActive(active);
+                    dbUser.setAnnualFee(annualFee);
+                    dbUser.setDeleted(deleted);
+                    userRepository.save(dbUser);
+                });
+        userRepository.saveAll(
+                userRepository.findAll().stream()
+                        .filter(dbUser -> !apiMap.containsKey(dbUser.getUserId()))
+                        .map(dbUser -> {
+                            dbUser.setDeleted(true);
+                            return dbUser;
+                        })
+                        .collect(Collectors.toList())
+        );
     }
 }
