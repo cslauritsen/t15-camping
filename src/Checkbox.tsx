@@ -6,7 +6,13 @@ export function Checkbox(props: any) {
 
     return (
         <>
-            <Button size={'lg'} variant={'link'} onClick={() => {setChecked(s => !s); props?.onChange?.(checked);}}>
+            <Button size={'lg'} variant={'link'}
+                    onClick={() => {
+                        setChecked(s => !s);
+                        props?.onChange?.(checked);
+                    }}
+                    style={{textDecoration: 'none'}}
+            >
                 {checked ? '✅' : '❌'}
             </Button>
         </>

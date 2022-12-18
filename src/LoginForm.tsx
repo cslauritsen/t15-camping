@@ -1,12 +1,9 @@
-import {useState} from "react";
-import {Button, Col, Container, Form, Row} from "react-bootstrap";
-import UserTable from "./UserTable";
-import apiToken from "./apiToken";
-import {Suspense} from "react";
-import Cookies from 'universal-cookie';
+import {Suspense, useState} from "react";
+import {Button, Col, Container, Form, Row, Spinner} from "react-bootstrap";
 import {useCookies} from 'react-cookie';
 import {ttTok} from "./cookies";
 import UserList from "./UserList";
+import styles from './LoginForm.module.css';
 
 export default function LoginForm(props: any) {
     const [user, setUser] = useState('');
@@ -14,6 +11,7 @@ export default function LoginForm(props: any) {
     // const [token, setToken] = useState('');
     const [errMsg, setErrMsg] = useState('');
     const [cookies, setCookie, removeCookie] = useCookies([ttTok]);
+    const [ isSubmitting, setSubmitting ] = useState(false);
 
     console.log(`Cookies: ${JSON.stringify(cookies)}`);
     if (cookies[ttTok]) {
@@ -27,12 +25,13 @@ export default function LoginForm(props: any) {
         <Container>
             <Row>
                 <Col>
-                    <div>
+                    <div className={styles.errMsg}>
                         {errMsg ? `Error: ${errMsg}` : null}
                     </div>
                 </Col>
             </Row>
             <Form onSubmit={event => {
+                setSubmitting(true);
                 event.preventDefault();
                 setErrMsg('');
                 const req = new Request(`${window.location.protocol}//${window.location.hostname}:8080/user/login`,
@@ -51,6 +50,11 @@ export default function LoginForm(props: any) {
                     .then(res => {
                         if (res.ok) {
                             return res.json();
+                        } else if (res.status === 401) {
+                            setErrMsg(`Unauthorized, try logging in again`);
+                            removeCookie(ttTok);
+                            setSubmitting(false);
+                            return Promise.reject(res);
                         } else {
                             setErrMsg(`${res.status}: ${res.statusText}`);
                             return Promise.reject(res);
@@ -59,15 +63,19 @@ export default function LoginForm(props: any) {
                     .then(data => {
                         console.log(JSON.stringify(data));
                         if (data?.users?.length) {
+                            console.log(`logged in`);
                             const tok = data.users[0]?.token;
                             const dt = new Date();
                             dt.setDate(dt.getDate() + 1);
                             setCookie(ttTok, tok, {path: '/', expires: dt});
                             console.log(`Set ${ttTok} to ${tok}`);
                         }
+                        setSubmitting(false);
                     })
                     .catch(reason => {
-                            console.error(`Caught error: ${JSON.stringify(reason)}`);
+                            setErrMsg(`Login failed ${reason}`);
+                            setSubmitting(false);
+                            console.error(`Caught error: ${reason}`);
                             removeCookie(ttTok);
                         }
                     );
@@ -96,7 +104,7 @@ export default function LoginForm(props: any) {
                 </Row>
                 <Row xxl={6}>
                     <Form.Group className={'mb-3'}>
-                        <Button type={'submit'}>Login</Button>
+                        <Button type={'submit'}>{ isSubmitting ? <Spinner animation={'border'} size={'sm'} /> : 'Login'}</Button>
                     </Form.Group>
                 </Row>
             </Form>

@@ -1,14 +1,8 @@
 import {Form} from "react-bootstrap";
 import {Calendar2Month, CalendarCheck} from 'react-bootstrap-icons';
 import {useState} from "react";
+import {User} from "./User";
 
-interface User {
-    scout: boolean;
-    first_name: string;
-    last_name: string;
-    user_id: number;
-    email: string;
-}
 
 interface Props {
     user?: User;

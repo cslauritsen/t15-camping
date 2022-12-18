@@ -1,2 +1,2 @@
 
-export const ttTok = 'ttTok2';
+export const ttTok = 'ttTok';
