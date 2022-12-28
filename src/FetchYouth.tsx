@@ -1,4 +1,3 @@
-import apiToken from "./apiToken";
 import {useQuery} from 'react-query'
 
 interface Props {
@@ -13,7 +12,7 @@ export default function FetchYouth(props: Props) {
             redirect: 'follow',
             headers: new Headers({
                 'Accept': 'application/json',
-                'X-Partner-Token': apiToken,
+                'X-Partner-Token': '',
                 'X-User-Token': props?.userToken,
             }),
         });
