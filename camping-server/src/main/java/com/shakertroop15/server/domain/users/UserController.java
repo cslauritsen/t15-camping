@@ -13,9 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -162,7 +160,7 @@ public class UserController {
         if (session.getAttribute(USER_TOKEN) instanceof String userToken) {
             val res = userRepository.findByUserId(userId);
             if (res.isEmpty()) {
-                return ResponseEntity.badRequest().build();
+                return ResponseEntity.notFound().build();
             }
             var user = res.get();
             if (allParams.containsKey("annualFee")) {
@@ -178,5 +176,14 @@ public class UserController {
             return ResponseEntity.ok(user);
         }
         return ResponseEntity.status(401).build();
+    }
+
+    @PostMapping("/user/logout")
+    public ResponseEntity<UserStatus> logout(HttpSession session) {
+        session.invalidate();
+        var status = new UserStatus();
+        status.setSuccess(true);
+        status.setMessage("User logged out");
+        return ResponseEntity.ok(status);
     }
 }
