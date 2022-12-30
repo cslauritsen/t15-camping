@@ -1,11 +1,11 @@
 import {getBaseUrl} from "./baseUrl";
 import {ApiError, EventResponse, EventsResponse} from "./Event";
-import {useQuery} from "react-query";
-import {UsersResponse} from "./User";
+import {useMutation, useQuery, useQueryClient} from "react-query";
+import {User, UsersResponse} from "./User";
 import {useCookies} from "react-cookie";
 import {ttTok} from "./cookies";
 
-export const fetchUsers = (): Promise<UsersResponse> => {
+const fetchUsers = (): Promise<UsersResponse> => {
     return fetch(new Request(`${getBaseUrl()}/users`,
         {
             method: "GET",
@@ -28,9 +28,53 @@ export const fetchUsers = (): Promise<UsersResponse> => {
         .then(data => data as UsersResponse);
 };
 
-export function useUserList(revision: number) {
+export function useUserList() {
     const [cookies, setCookie, removeCookie] = useCookies([ttTok]);
-    return useQuery<UsersResponse, ApiError>(['useUserList', revision], fetchUsers,
+    const queryClient = useQueryClient();
+    return useQuery<UsersResponse, ApiError>(['useUserList'], fetchUsers,
+        {
+            onError: err => {
+                if (err.code === 401) {
+                    removeCookie(ttTok);
+                }
+            },
+            onSuccess: (data: UsersResponse) => {
+                data?.users?.forEach((u) => {
+                    queryClient.setQueryData(['user', u.user_id], u);
+                });
+            },
+        }
+    );
+}
+
+
+const fetchUser = (userId: number): Promise<User> => {
+    const url = `${getBaseUrl()}/user/${userId}`;
+    if (userId === 0 || userId) {
+        return fetch(new Request(url,
+            {
+                method: "GET",
+                redirect: 'follow',
+                credentials: 'include',
+                headers: new Headers({
+                    'Accept': 'application/json',
+                }),
+            }))
+            .then(res => {
+                if (res.ok) {
+                    return res.json();
+                } else {
+                    return Promise.reject({code: res.status, message: `User fetch failed`} as ApiError);
+                }
+            })
+            .then(data => data as User);
+    }
+    return Promise.reject({code: 404, message: 'Invalid event ID'});
+};
+
+export function useUser(userId: number) {
+    const [cookies, setCookie, removeCookie] = useCookies([ttTok]);
+    return useQuery<User, ApiError>(['user', userId], () => fetchUser(userId),
         {
             onError: err => {
                 if (err.code === 401) {
@@ -112,9 +156,3 @@ export function useEvent(eventId: number) {
         }
     );
 }
-
-
-
-
-
-

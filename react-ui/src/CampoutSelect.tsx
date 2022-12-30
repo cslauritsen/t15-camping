@@ -34,7 +34,7 @@ export function CampoutSelect({start, end, onSelect}: Props) {
                         const event = sorted?.find(e => e.event_id === eventId);
                         if (event) {
                             onSelect?.(event, eventId);
-                            console.log(`selected invite: ${JSON.stringify(event)}`);
+                            console.log(`selected event: ${JSON.stringify(event)}`);
                         }
                     }}>
                         <option key={'dummy'}>Choose a Campout</option>
