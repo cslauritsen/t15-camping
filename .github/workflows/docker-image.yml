@@ -16,10 +16,10 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Build the Docker image
-      run: docker build node-server --file node-server/Dockerfile --tag cslauritsen/t15-server:${{ env.GITHUB_RUN_NUMBER }}
+      run: docker build node-server --file node-server/Dockerfile --tag cslauritsen/t15-server:${{github.run_number}}
 
     - name: Docker Login
       run: docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_PASSWORD }}
 
     - name: Dodker Push
-      run: docker push cslauritsen/t15-server:${{ env.GITHUB_RUN_NUMBER }}
+      run: docker push cslauritsen/t15-server:${{github.run_number}}
