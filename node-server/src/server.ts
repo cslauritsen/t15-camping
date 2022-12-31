@@ -1,7 +1,5 @@
 import dotenv from "dotenv";
-dotenv.config({ path: "./config.env" });
-
-console.log(`process env: ${process.env}`);
+dotenv.config();
 
 import express, { Express, Request, Response } from 'express';
 import cors from 'cors';
