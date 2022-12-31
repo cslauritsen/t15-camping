@@ -25,7 +25,7 @@ userRoutes.route("/users").get(async function (req, res) {
 // This section will help you get a single record by id
 userRoutes.route("/user/:id").get((req, res) => {
     let db_connect = getDb();
-    let myquery = {_id: new ObjectId(req.params.id)};
+    let myquery = { _id: req.params.id };
     db_connect
         .collection("users")
         // .findOne(myquery, function (err, result) {

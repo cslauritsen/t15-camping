@@ -35,13 +35,12 @@ ttroutes.route("/tt/login").post((req, res) => {
 
 ttroutes.route("/tt/events").get((req, res) => {
     const url = `${ttBaseUrl}/events?start_on=2022-08-01&end_on=2023-07-31`;
-    const userToken = req.cookies?.t15_tt_token;
     fetch(url, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
             'X-Partner-Token': partnerToken,
-            'X-User-Token': userToken,
+            'X-User-Token': req.cookies?.t15_tt_token,
             'Accept': 'application/json',
         }
     })
@@ -53,4 +52,22 @@ ttroutes.route("/tt/events").get((req, res) => {
         });
 });
 
+ttroutes.route("/tt/event/:eventId").get((req, res) => {
+    const url = `${ttBaseUrl}/events/${req.params.eventId}`;
+    fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Partner-Token': partnerToken,
+            'X-User-Token': req.cookies?.t15_tt_token,
+            'Accept': 'application/json',
+        }
+    })
+        .then(res => res.json())
+        .then((data) => res.json(data))
+        .catch((error) => {
+            console.error("Error:", error);
+            res.status(401).send(error);
+        });
+});
 export default ttroutes;
