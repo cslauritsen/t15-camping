@@ -2,7 +2,7 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "main", "typescript" ]
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
@@ -19,7 +19,7 @@ jobs:
       run: docker build node-server --file node-server/Dockerfile --tag cslauritsen/t15-server:${{github.run_number}}
 
     - name: Docker Login
-      run: docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_PASSWORD }}
+      run: docker login -u cslauritsen -p '${{ secrets.DOCKER_HUB_PASSWORD }}'
 
     - name: Dodker Push
       run: docker push cslauritsen/t15-server:${{github.run_number}}
