@@ -1,6 +1,12 @@
+import dotenv from "dotenv";
+dotenv.config({ path: "./config.env" });
+
+console.log(`process env: ${process.env}`);
 import {Callback, Db, MongoClient} from "mongodb";
 
+
 const dbUrl = process.env.ATLAS_URI ?? '';
+console.log(`Connecting mongodb URL: ${dbUrl}`);
 const client = new MongoClient(dbUrl, {
     // useNewUrlParser: true,
     // useUnifiedTopology: true,

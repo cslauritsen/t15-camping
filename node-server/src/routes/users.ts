@@ -1,4 +1,5 @@
-import express from "express";
+// import * as express from "express";
+import express, { Express, Request, Response } from 'express';
 
 // routes is an instance of the express router.
 // We use it to define our routes.
@@ -6,27 +7,25 @@ import express from "express";
 const userRoutes = express.Router();
 
 // This will help us connect to the database
-import {getDb} from "../db/troop15";
-
+import {getDb} from "../db/troop15.js";
 
 // This help convert the id from string to ObjectId for the _id.
-const ObjectId = require("mongodb").ObjectId;
-
+import {ObjectId} from "mongodb";
 
 // This section will help you get a list of all the records.
-    userRoutes.route("/users").get(async function (req, res) {
-        let db_connect = getDb();
-        const data = await db_connect
-            .collection("users")
-            .find({})
-            .toArray();
-        res.json(data);
-    });
+userRoutes.route("/users").get(async function (req, res) {
+    let db_connect = getDb();
+    const data = await db_connect
+        .collection("users")
+        .find({})
+        .toArray();
+    res.json(data);
+});
 
 // This section will help you get a single record by id
 userRoutes.route("/user/:id").get((req, res) => {
     let db_connect = getDb();
-    let myquery = {_id: ObjectId(req.params.id)};
+    let myquery = {_id: new ObjectId(req.params.id)};
     db_connect
         .collection("users")
         // .findOne(myquery, function (err, result) {
@@ -56,7 +55,7 @@ userRoutes.route("/user/add").post(async function (req, response) {
 // This section will help you update a record by id.
 userRoutes.route("/update/:id").post(function (req, response) {
     let db_connect = getDb();
-    const filter = {_id: ObjectId(req.params.id)};
+    const filter = {_id: new ObjectId(req.params.id)};
     const update = {
         $set: {
             annual_fee: req?.body?.annual_fee ? true : false,
@@ -97,7 +96,7 @@ userRoutes.route("/annualfee/:id").post(function (req, response) {
 // This section will help you delete a record
 userRoutes.route("/user/:id").delete((req, response) => {
     let db_connect = getDb();
-    let myquery = {_id: ObjectId(req.params.id)};
+    let myquery = {_id: new ObjectId(req.params.id)};
     db_connect.collection("users").deleteOne(myquery, function (err, obj) {
         if (err) throw err;
         console.log("1 document deleted");
