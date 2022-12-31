@@ -13,7 +13,7 @@ import {getDb} from "../db/troop15.js";
 import {ObjectId} from "mongodb";
 
 // This section will help you get a list of all the records.
-userRoutes.route("/users").get(async function (req, res) {
+userRoutes.route("/api/users").get(async function (req, res) {
     let db_connect = getDb();
     const data = await db_connect
         .collection("users")
@@ -23,7 +23,7 @@ userRoutes.route("/users").get(async function (req, res) {
 });
 
 // This section will help you get a single record by id
-userRoutes.route("/user/:id").get((req, res) => {
+userRoutes.route("/api/user/:id").get((req, res) => {
     let db_connect = getDb();
     let myquery = { _id: req.params.id };
     db_connect
@@ -38,7 +38,7 @@ userRoutes.route("/user/:id").get((req, res) => {
 });
 
 // This section will help you create a new record.
-userRoutes.route("/user/add").post(async function (req, response) {
+userRoutes.route("/api/user/add").post(async function (req, response) {
     let db_connect = getDb();
     let myobj = {
         name: req.body.name,
@@ -53,7 +53,7 @@ userRoutes.route("/user/add").post(async function (req, response) {
 });
 
 // This section will help you update a record by id.
-userRoutes.route("/update/:id").post(function (req, response) {
+userRoutes.route("/api/update/:id").post(function (req, response) {
     let db_connect = getDb();
     const filter = {_id: new ObjectId(req.params.id)};
     const update = {
@@ -75,7 +75,7 @@ userRoutes.route("/update/:id").post(function (req, response) {
 
 
 // This section will help you update a record by id.
-userRoutes.route("/annualfee/:id").post(function (req, response) {
+userRoutes.route("/api/annualfee/:id").post(function (req, response) {
     let db_connect = getDb();
     let myquery = {ttid: req.params.id};
     let newvalues = {
@@ -94,7 +94,7 @@ userRoutes.route("/annualfee/:id").post(function (req, response) {
 });
 
 // This section will help you delete a record
-userRoutes.route("/user/:id").delete((req, response) => {
+userRoutes.route("/api/user/:id").delete((req, response) => {
     let db_connect = getDb();
     let myquery = {_id: new ObjectId(req.params.id)};
     db_connect.collection("users").deleteOne(myquery, function (err, obj) {

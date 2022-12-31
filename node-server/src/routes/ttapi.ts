@@ -7,7 +7,7 @@ const ttBaseUrl = process.env?.TT_BASE_URL ?? 'https://shakertroop15.trooptrack.
 
 const ttroutes = Router();
 
-ttroutes.route("/tt/login").post((req, res) => {
+ttroutes.route("/api/tt/login").post((req, res) => {
     console.log(`tt login: ${req.body}`);
     const {username, password} = req.body
     const url = `${ttBaseUrl}/tokens`;
@@ -33,7 +33,7 @@ ttroutes.route("/tt/login").post((req, res) => {
         });
 });
 
-ttroutes.route("/tt/events").get((req, res) => {
+ttroutes.route("/api/tt/events").get((req, res) => {
     const url = `${ttBaseUrl}/events?start_on=2022-08-01&end_on=2023-07-31`;
     fetch(url, {
         method: 'GET',
@@ -52,7 +52,7 @@ ttroutes.route("/tt/events").get((req, res) => {
         });
 });
 
-ttroutes.route("/tt/event/:eventId").get((req, res) => {
+ttroutes.route("/api/tt/event/:eventId").get((req, res) => {
     const url = `${ttBaseUrl}/events/${req.params.eventId}`;
     fetch(url, {
         method: 'GET',
