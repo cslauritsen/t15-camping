@@ -2,6 +2,13 @@
 
 Server and react web client to communicate and extend the [TroopTrack](https://www.trooptrack.com/) [API](https://trooptrack.com/api/swagger). 
 
+# Projects
+## springboot-camping-server
+This server authenticates to MongoDB & the TroopTrack API and coordinates actions between the two, as well as provides all data for the react-ui application
+## react-ui
+Renders a UI that allows the user to login, synchronize users from Troop Track, and update custom fields in the MongoDB for each user.
+
+
 # Purpose
 The way we run our troop's finances and billing does not work perfectly
 with the way trooptrack is setup to collect from families. 
