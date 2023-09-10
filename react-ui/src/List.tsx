@@ -104,8 +104,8 @@ export function List(props: Props) {
                             </Col>
                             <Col>
                                 <CampoutSelect
-                                    start={'2022-08-01'}
-                                    end={'2023-07-31'}
+                                    start={'2023-08-01'}
+                                    end={'2024-07-31'}
                                     onSelect={(e, eid) => setEventId(eid)}
                                 />
                                 <FilterSelect onSelect={v => setEventFilter(v)} />
