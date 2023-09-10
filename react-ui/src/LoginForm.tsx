@@ -4,6 +4,7 @@ import {useCookies} from 'react-cookie';
 import {ttTok} from "./cookies";
 import UserList from "./UserList";
 import styles from './LoginForm.module.css';
+import {getBaseUrl} from "./baseUrl";
 
 export default function LoginForm(props: any) {
     const [user, setUser] = useState('');
@@ -12,6 +13,7 @@ export default function LoginForm(props: any) {
     const [errMsg, setErrMsg] = useState('');
     const [cookies, setCookie, removeCookie] = useCookies([ttTok]);
     const [ isSubmitting, setSubmitting ] = useState(false);
+    const baseUrl = getBaseUrl();
 
     console.log(`Cookies: ${JSON.stringify(cookies)}`);
     if (cookies[ttTok]) {
@@ -34,7 +36,7 @@ export default function LoginForm(props: any) {
                 setSubmitting(true);
                 event.preventDefault();
                 setErrMsg('');
-                const req = new Request(`${window.location.protocol}//${window.location.hostname}:8080/user/login`,
+                const req = new Request(`${baseUrl}/user/login`,
                     {
                         method: "POST",
                         redirect: 'follow',

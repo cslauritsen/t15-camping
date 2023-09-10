@@ -2,6 +2,7 @@ import {ttTok} from "./cookies";
 import {useState} from "react";
 import {Button, Modal, Spinner} from "react-bootstrap";
 import {useCookies} from "react-cookie";
+import {getBaseUrl} from "./baseUrl";
 
 export function SyncMenuItem(props: any) {
     const [show, setShow] = useState(false);
@@ -12,7 +13,7 @@ export function SyncMenuItem(props: any) {
         console.log(`synch start`);
         setSyncing(true);
         setMessage('Sychronization in progress...');
-        const req = new Request(`${window.location.protocol}//${window.location.hostname}:8080/users/sync`,
+        const req = new Request(`${getBaseUrl()}/users/sync`,
             {
                 method: "POST",
                 redirect: 'follow',

@@ -25,6 +25,7 @@ public class LocalCorsConfig {
         config.addAllowedOrigin("http://t15.camping:3000");
         config.addAllowedOrigin("http://localhost");
         config.addAllowedOrigin("https://localhost");
+        config.addAllowedOrigin("https://t15camping.tech");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", config);
