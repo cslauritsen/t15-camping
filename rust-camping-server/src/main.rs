@@ -1,22 +1,33 @@
+use chrono::Datelike;
 use dotenv;
 use trooptrack_rust::apis::{Error, events_api, tokens_api};
 use trooptrack_rust::apis::configuration::Configuration;
 use trooptrack_rust::apis::events_api::GetV1EventsError;
 use trooptrack_rust::apis::tokens_api::PostV1TokensError;
-use trooptrack_rust::models::event_entity::EventsResponse;
-use trooptrack_rust::models::user_privileges_entity::PostV1TokensResponse;
+use trooptrack_rust::models::events_list_entity::EventsListEntity;
+use trooptrack_rust::models::token_users_response::TokenUsersResponse;
 
 #[tokio::main]
 async fn main() {
     let config = Configuration::new();
     dotenv::dotenv().expect("Failed to read .env file");
+    let default_int = 1;
 
     match dotenv::var("TT_TOKEN") {
         Ok(tok) => {
             println!("Token: {:?}", tok);
             match get_some_events(&config).await {
                 Ok(res) => {
-                    dbg!("Events: {:?}", &res);
+                    for event in res.events.unwrap_or(vec![]) {
+                        let dt = chrono::DateTime::parse_from_rfc3339(&event.activity_at.unwrap_or("".to_string()))
+                            .expect("Failed to parse date");
+
+                        println!("Event: id={}, mo={}/{}/{}, titre={}",
+                                 event.event_id.as_ref().unwrap_or(&default_int),
+                                 dt.month(), dt.day(), dt.year(),
+                                 event.title.as_ref().unwrap_or(&"No title".to_string()),
+                        );
+                    }
                 }
                 Err(err) => {
                     println!("Failed to get events: {:?}", err);
@@ -28,7 +39,7 @@ async fn main() {
             match login(&config).await {
                 Ok(res) => {
                     dbg!("Login successful: {:?}", &res);
-                    let tok = &res.users
+                    let tok = &res.users.expect("users array should be present")
                         .get(0)
                         .expect("users array should not be empty")
                         .token
@@ -46,7 +57,7 @@ async fn main() {
     }
 }
 
-async fn login(config: &Configuration) -> Result<PostV1TokensResponse, Error<PostV1TokensError>> {
+async fn login(config: &Configuration) -> Result<TokenUsersResponse, Error<PostV1TokensError>> {
     dotenv::dotenv().expect("Failed to read .env file");
     let x_partner_token = dotenv::var("TT_PARTNER_TOKEN").expect("TT_PARTNER_TOKEN expected");
     let x_username = dotenv::var("TT_USER_ID").expect("TT_USER_ID expected");
@@ -60,8 +71,7 @@ async fn login(config: &Configuration) -> Result<PostV1TokensResponse, Error<Pos
     ).await
 }
 
-async fn get_some_events(config: &Configuration) -> Result<EventsResponse, Error<GetV1EventsError>> {
-
+async fn get_some_events(config: &Configuration) -> Result<EventsListEntity, Error<GetV1EventsError>> {
     let x_partner_token = dotenv::var("TT_PARTNER_TOKEN").expect("TT_PARTNER_TOKEN expected");
     let x_user_token = dotenv::var("TT_TOKEN").expect("TT_TOKEN expected");
     events_api::get_v1_events(
