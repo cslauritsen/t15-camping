@@ -16,7 +16,7 @@ Method | HTTP request | Description
 
 ## get_v1_events
 
-> models::EventEntity get_v1_events(x_partner_token, x_user_token, start_on, end_on)
+> models::EventsListEntity get_v1_events(x_partner_token, x_user_token, start_on, end_on)
 
 
 Returns a list of events for the date range provided
@@ -33,7 +33,7 @@ Name | Type | Description  | Required | Notes
 
 ### Return type
 
-[**models::EventEntity**](EventEntity.md)
+[**models::EventsListEntity**](EventsListEntity.md)
 
 ### Authorization
 

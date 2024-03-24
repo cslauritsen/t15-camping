@@ -68,7 +68,7 @@ No authorization required
 
 ## post_v1_tokens
 
-> Vec<models::UserPrivilegesEntity> post_v1_tokens(x_partner_token, x_username, x_user_password)
+> models::TokenUsersResponse post_v1_tokens(x_partner_token, x_username, x_user_password)
 
 
 Gets authentication and privilege information for a user account
@@ -84,7 +84,7 @@ Name | Type | Description  | Required | Notes
 
 ### Return type
 
-[**Vec<models::UserPrivilegesEntity>**](UserPrivilegesEntity.md)
+[**models::TokenUsersResponse**](TokenUsersResponse.md)
 
 ### Authorization
 

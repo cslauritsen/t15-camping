@@ -1,5 +1,4 @@
 .gitignore
-.openapi-generator-ignore
 .travis.yml
 Cargo.toml
 README.md
@@ -11,6 +10,7 @@ docs/EventDetailsEntity.md
 docs/EventEntity.md
 docs/EventTypeEntity.md
 docs/EventsApi.md
+docs/EventsListEntity.md
 docs/MailingListEntity.md
 docs/MailingListsApi.md
 docs/OfflineApi.md
@@ -25,6 +25,7 @@ docs/PostV1UserAchievementsIdRequest.md
 docs/PostV1UsersIdRequest.md
 docs/PostV1YouthsRequest.md
 docs/PutV1EventsIdRsvpRequest.md
+docs/TokenUsersResponse.md
 docs/TokensApi.md
 docs/TroopPhotoEntity.md
 docs/UserAchievementsApi.md
@@ -50,6 +51,7 @@ src/models/award_type_entity.rs
 src/models/event_details_entity.rs
 src/models/event_entity.rs
 src/models/event_type_entity.rs
+src/models/events_list_entity.rs
 src/models/mailing_list_entity.rs
 src/models/mod.rs
 src/models/photo_album_entity.rs
@@ -62,5 +64,6 @@ src/models/post_v1_user_achievements_id_request.rs
 src/models/post_v1_users_id_request.rs
 src/models/post_v1_youths_request.rs
 src/models/put_v1_events_id_rsvp_request.rs
+src/models/token_users_response.rs
 src/models/troop_photo_entity.rs
 src/models/user_privileges_entity.rs

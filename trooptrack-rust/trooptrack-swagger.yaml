@@ -814,9 +814,8 @@ paths:
         "201":
           description: Gets authentication and privilege information for a user account
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/TokenUsersResponse'
+            type: object
+            $ref: '#/definitions/TokenUsersResponse'
         "401":
           description: 401 Unauthorized partner
       tags:
@@ -1282,10 +1281,10 @@ definitions:
         type: string
         description: Indicates whether guests are allowed
       payment_required_to_rsvp:
-        type: string
+        type: boolean
         description: Indicates if payment is required to RSVP for this event. You cannot RSVP through the API if this is true.
       is_registration_closed?:
-        type: string
+        type: boolean
         description: Indicates if registration for this event is closed.
       adult_fee:
         type: string
@@ -1348,10 +1347,10 @@ definitions:
         type: string
         description: Color for text that is visible on a background of the color of the event
       is_registration_closed?:
-        type: string
+        type: boolean
         description: Indicates if registration for this event is closed.
       payment_required_to_rsvp:
-        type: string
+        type: boolean
         description: Indicates if payment is required to RSVP for this event. You cannot RSVP through the API if this is true.
     description: EventEntity model
   EventsListEntity:
