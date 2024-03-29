@@ -31,4 +31,5 @@ Cargo.lock
 .idea/replstate.xml
 .idea/sonarlint/
 .idea/httpRequests
+.idea/copilot
 .idea/caches/build_file_checksums.ser

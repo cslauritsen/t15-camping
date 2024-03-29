@@ -1,5 +1,7 @@
 use chrono::Datelike;
 use dotenv;
+use mongodb::{bson::doc, options::ClientOptions};
+use mongodb::bson::Document;
 use trooptrack_rust::apis::{Error, events_api, tokens_api};
 use trooptrack_rust::apis::configuration::Configuration;
 use trooptrack_rust::apis::events_api::GetV1EventsError;
@@ -7,9 +9,77 @@ use trooptrack_rust::apis::tokens_api::PostV1TokensError;
 use trooptrack_rust::models::events_list_entity::EventsListEntity;
 use trooptrack_rust::models::token_users_response::TokenUsersResponse;
 
+use state::State;
+
+mod state;
+mod user;
+mod routes;
+
+fn cfg() -> Configuration {
+    Configuration {
+        base_path: "https://shakertroop15.trooptrack.com/api".to_owned(),
+        ..Default::default()
+    }
+}
+
 #[tokio::main]
-async fn main() {
-    let config = Configuration::new();
+async fn main() -> tide::Result<()> {
+    femme::start();
+
+    let db_uri = "mongodb://localhost:27017/";
+    let state = State::new(db_uri).await?;
+    let mut app = tide::with_state(state);
+
+    app.at("/list").get(routes::list_dbs);
+    app.at("/:db/list").get(routes::list_colls);
+    app.at("/:db/:collection").post(routes::insert_doc);
+    app.at("/:db/:collection").get(routes::find_doc);
+    app.at("/:db/:collection/update").get(routes::update_doc);
+    app.listen("0.0.0.0:9080").await?;
+
+    Ok(())
+}
+
+async fn mongo_test() -> mongodb::error::Result<()> {
+    let uri = dotenv::var("MONGO_URI").expect("MONGO_URI expected");
+    let mut client_options = ClientOptions::parse_async(uri).await?;
+    // only set credential if password is set
+    if let Ok(pass) = dotenv::var("MONGO_PASSWORD") {
+        let credential = mongodb::options::Credential::builder()
+            .username(dotenv::var("MONGO_USER").unwrap_or("MONGO_USER".to_string()))
+            .password(pass)
+            .build();
+        client_options.credential = Some(credential);
+    }
+    let client = mongodb::Client::with_options(client_options)?;
+
+    println!("Databases: ");
+    for x in client.list_databases(None, None).await? {
+        println!("  Database: {:?}", x);
+    }
+
+    let db_name = dotenv::var("MONGO_DATABASE").unwrap_or("troop15".to_string());
+    let db = client.database(&db_name);
+    db.run_command(doc! { "ping": 1 }, None).await?;
+    println!("Pinged your deployment. You successfully connected to MongoDB!");
+
+    let coll: mongodb::Collection<Document> = db.collection("users");
+    let cnt = coll.count_documents(None, None).await?;
+    println!("Users collection count: {}", cnt);
+    let u = coll.find_one(doc! { "age": 25}, None).await.expect("Failed to find user");
+    match u {
+        Some(user) => {
+            println!("User: {:?}", user);
+        }
+        None => {
+            println!("User not found");
+        }
+    }
+    Ok(())
+}
+
+async fn ttapi_main() {
+    let config = cfg();
     dotenv::dotenv().expect("Failed to read .env file");
     let default_int = 1;
 
@@ -57,6 +127,7 @@ async fn main() {
     }
 }
 
+
 async fn login(config: &Configuration) -> Result<TokenUsersResponse, Error<PostV1TokensError>> {
     dotenv::dotenv().expect("Failed to read .env file");
     let x_partner_token = dotenv::var("TT_PARTNER_TOKEN").expect("TT_PARTNER_TOKEN expected");
@@ -78,7 +149,7 @@ async fn get_some_events(config: &Configuration) -> Result<EventsListEntity, Err
         &config,
         &x_partner_token,
         &x_user_token,
-        "2023-01-01",
-        "2023-12-31",
+        "2024-01-01",
+        "2024-12-31",
     ).await
 }
