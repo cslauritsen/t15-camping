@@ -1,0 +1,4 @@
+### List databases
+GET {{origin}}/v1/list
+### List databases
+GET {{origin}}/

@@ -26,16 +26,41 @@ fn cfg() -> Configuration {
 async fn main() -> tide::Result<()> {
     femme::start();
 
-    let db_uri = "mongodb://localhost:27017/";
-    let state = State::new(db_uri).await?;
-    let mut app = tide::with_state(state);
+    let db_uri = dotenv::var("MONGO_URI")
+        .unwrap_or(String::from("mongodb://localhost:27017/"));
+    let listen_addr = dotenv::var("LISTEN_ADDR")
+        .unwrap_or(String::from("localhost:9080"));
 
-    app.at("/list").get(routes::list_dbs);
-    app.at("/:db/list").get(routes::list_colls);
-    app.at("/:db/:collection").post(routes::insert_doc);
-    app.at("/:db/:collection").get(routes::find_doc);
-    app.at("/:db/:collection/update").get(routes::update_doc);
-    app.listen("0.0.0.0:9080").await?;
+    let state = State::new(&db_uri).await?;
+    let mut app = tide::with_state(state);
+    //
+    // app.with(tide::log::LogMiddleware::new());
+    //
+    // app.with(tide::sessions::SessionMiddleware::new(
+    //     tide::sessions::MemoryStore::new(),
+    //     dotenv::var("TIDE_SECRET")
+    //         .expect(
+    //             "Please provide a TIDE_SECRET value of at \
+    //                   least 32 bytes in order to run this example",
+    //         )
+    //         .as_bytes(),
+    // ));
+    //
+    // app.with(tide::utils::Before(
+    //     |mut request: tide::Request<state::State>| async move {
+    //         let session = request.session_mut();
+    //         let visits: usize = session.get("visits").unwrap_or_default();
+    //         session.insert("visits", visits + 1).unwrap();
+    //         request
+    //     },
+    // ));
+    app.at("/").get(routes::get_root);
+    app.at("/v1/list").get(routes::list_dbs);
+    app.at(&format!("/v1/{}", "/:db/list")).get(routes::list_colls);
+    // app.at(&format!("/v1/{}", "/:db/:collection")).post(routes::insert_doc);
+    // app.at(&format!("/v1/{}", "/:db/:collection")).get(routes::find_doc);
+    // app.at(&format!("/v1/{}", "/:db/:collection/update")).get(routes::update_doc);
+    app.listen(&listen_addr).await?;
 
     Ok(())
 }

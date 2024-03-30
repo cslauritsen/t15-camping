@@ -21,6 +21,9 @@ impl State {
             client_options.credential = Some(credential);
         }
         let client = Client::with_options(client_options)?;
+        for db_name in client.list_database_names(None, None).await? {
+            println!("    found db: {}", db_name);
+        }
         Ok(Self { db:  client})
     }
 
