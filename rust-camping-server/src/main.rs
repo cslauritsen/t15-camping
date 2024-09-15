@@ -8,8 +8,13 @@ use trooptrack_rust::apis::events_api::GetV1EventsError;
 use trooptrack_rust::apis::tokens_api::PostV1TokensError;
 use trooptrack_rust::models::events_list_entity::EventsListEntity;
 use trooptrack_rust::models::token_users_response::TokenUsersResponse;
+use axum::{
+    routing::{get, post},
+    http::StatusCode,
+    Json, Router,
+};
 
-use state::State;
+
 
 mod state;
 mod user;
@@ -23,50 +28,48 @@ fn cfg() -> Configuration {
 }
 
 #[tokio::main]
-async fn main() -> tide::Result<()> {
+async fn main() {
     femme::start();
-
-    let db_uri = dotenv::var("MONGO_URI")
-        .unwrap_or(String::from("mongodb://localhost:27017/"));
     let listen_addr = dotenv::var("LISTEN_ADDR")
         .unwrap_or(String::from("localhost:9080"));
 
-    let state = State::new(&db_uri).await?;
-    let mut app = tide::with_state(state);
-    //
-    // app.with(tide::log::LogMiddleware::new());
-    //
-    // app.with(tide::sessions::SessionMiddleware::new(
-    //     tide::sessions::MemoryStore::new(),
-    //     dotenv::var("TIDE_SECRET")
-    //         .expect(
-    //             "Please provide a TIDE_SECRET value of at \
-    //                   least 32 bytes in order to run this example",
-    //         )
-    //         .as_bytes(),
-    // ));
-    //
-    // app.with(tide::utils::Before(
-    //     |mut request: tide::Request<state::State>| async move {
-    //         let session = request.session_mut();
-    //         let visits: usize = session.get("visits").unwrap_or_default();
-    //         session.insert("visits", visits + 1).unwrap();
-    //         request
-    //     },
-    // ));
-    app.at("/").get(routes::get_root);
-    app.at("/v1/list").get(routes::list_dbs);
-    app.at(&format!("/v1/{}", "/:db/list")).get(routes::list_colls);
-    // app.at(&format!("/v1/{}", "/:db/:collection")).post(routes::insert_doc);
-    // app.at(&format!("/v1/{}", "/:db/:collection")).get(routes::find_doc);
-    // app.at(&format!("/v1/{}", "/:db/:collection/update")).get(routes::update_doc);
-    app.listen(&listen_addr).await?;
 
-    Ok(())
+    // initialize tracing
+    // tracing_subscriber::fmt::init();
+
+    // build our application with a route
+    let app = Router::new()
+        // `GET /` goes to `root`
+        .route("/", get(root))
+        // `POST /users` goes to `create_user`
+        .route("/dbs", get(|| async {
+            let client = mongo_client().await.expect("Failed to connect to MongoDB");
+            let names = client.list_database_names(None, None).await.expect("Failed to list databases");
+            names.join("\n")
+        }));
+
+    // run our app with hyper
+    let listener = tokio::net::TcpListener::bind(listen_addr).await.unwrap();
+    axum::serve(listener, app).await.unwrap();
 }
 
-async fn mongo_test() -> mongodb::error::Result<()> {
-    let uri = dotenv::var("MONGO_URI").expect("MONGO_URI expected");
+
+
+// basic handler that responds with a static string
+async fn root() -> &'static str {
+    "Hello, World!"
+}
+
+// async fn dbs() -> Option<String> {
+//     let client = mongo_client().await.expect("Failed to connect to MongoDB");
+//     let names = client.list_database_names(None, None).await.expect("Failed to list databases");
+//     Some(names.join("\n"))
+// }
+
+
+async fn mongo_client() -> mongodb::error::Result<mongodb::Client> {
+    let uri = dotenv::var("MONGO_URI")
+        .unwrap_or(String::from("mongodb://localhost:27017/"));
     let mut client_options = ClientOptions::parse_async(uri).await?;
     // only set credential if password is set
     if let Ok(pass) = dotenv::var("MONGO_PASSWORD") {
@@ -76,7 +79,11 @@ async fn mongo_test() -> mongodb::error::Result<()> {
             .build();
         client_options.credential = Some(credential);
     }
-    let client = mongodb::Client::with_options(client_options)?;
+    mongodb::Client::with_options(client_options)
+}
+
+async fn mongo_test() -> mongodb::error::Result<()> {
+    let client = mongo_client().await?;
 
     println!("Databases: ");
     for x in client.list_databases(None, None).await? {
