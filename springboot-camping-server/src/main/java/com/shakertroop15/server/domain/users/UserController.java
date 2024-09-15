@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
+import org.checkerframework.checker.units.qual.A;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,12 +12,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.BodyExtractors;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.netty.http.client.HttpClient;
+import reactor.netty.transport.ProxyProvider;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Map;
@@ -35,27 +40,28 @@ public class UserController {
     @Value("${app.troopTrack.baseUrl}")
     private String baseUrl;
 
-    @Autowired
-    private UserRepository userRepository;
+
+    private final UserRepository userRepository;
+    private final UserService userService;
 
     @Autowired
-    private UserService userService;
-
-    public UserController() {
+    public UserController(UserRepository userRepository, UserService userService, WebClient client) {
+        this.userRepository = userRepository;
+        this.userService = userService;
+        this.client = client;
     }
 
-    public UserController(String baseUrl) {
-        this.baseUrl = baseUrl;
-    }
 
+
+    final WebClient client;
 
     @PostMapping("/user/login")
     public ResponseEntity<TokenResponse> login(
             HttpSession session,
             @RequestParam String login,
             @RequestParam String password) {
-        var client = WebClient.create();
-        var tokenResponseStr = client.post()
+
+        var tokenResponse = client.post()
                 .uri(baseUrl + "/tokens")
                 .header("X-Partner-Token", partnerToken)
                 .header("X-Username", login)
@@ -66,30 +72,19 @@ public class UserController {
                     log.error("Error logging in: " + clientResponse.statusCode());
                     return clientResponse.createException();
                 })
-                .bodyToMono(String.class)
+                .bodyToMono(TokenResponse.class)
                 .block();
 
-        var tokenResponse = Optional
-                .ofNullable(tokenResponseStr)
-                .map(s -> {
-                    var mapper = new ObjectMapper();
-                    try {
-                        return mapper.readValue(s.getBytes(StandardCharsets.UTF_8), TokenResponse.class);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }).orElseThrow(() -> new RuntimeException("No token response found"));
-
         var privs = new ArrayList<String>();
-        Optional.ofNullable(tokenResponse.getUsers())
+        Optional.ofNullable(tokenResponse)
+                .map(TokenResponse::getUsers)
                 .flatMap(users -> users.stream().findFirst())
-                .ifPresent(u -> privs.addAll(u.getPrivileges()));
-        Optional.ofNullable(tokenResponse.getUsers())
-                .flatMap(users -> users.stream().findFirst())
-                .map(UserTokenRecord::getToken)
-                .ifPresent(t -> session.setAttribute(USER_TOKEN, t));
+                .ifPresent(u -> {
+                    privs.addAll(u.getPrivileges());
+                    session.setAttribute(USER_TOKEN, u.getToken());
+                });
         log.info("User {} logged in with privileges {}", login, privs);
-        return  ResponseEntity.ok(tokenResponse);
+        return ResponseEntity.ok(tokenResponse);
     }
 
     @GetMapping("/users")

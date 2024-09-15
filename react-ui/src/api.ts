@@ -1,9 +1,10 @@
 import {getBaseUrl} from "./baseUrl";
 import {ApiError, EventResponse, EventsResponse} from "./Event";
-import {useMutation, useQuery, useQueryClient} from "react-query";
+import {useQuery, useQueryClient} from "react-query";
 import {User, UsersResponse} from "./User";
 import {useCookies} from "react-cookie";
 import {ttTok} from "./cookies";
+import {formatDate} from "./dates";
 
 const fetchUsers = (): Promise<UsersResponse> => {
     return fetch(new Request(`${getBaseUrl()}/users`,
@@ -85,9 +86,9 @@ export function useUser(userId: number) {
     );
 }
 
-const fetchEvents = (start: string, end: string | undefined): Promise<EventsResponse> => {
-    let url = `${getBaseUrl()}/events?start=${start}`;
-    url = end ? url + `&end=${end}` : url;
+const fetchEvents = (start: Date, end?: Date): Promise<EventsResponse> => {
+    let url = `${getBaseUrl()}/events?start=${formatDate(start)}`;
+    url = end ? url + `&end=${formatDate(end)}` : url;
     return fetch(new Request(url,
         {
             method: "GET",
@@ -107,7 +108,7 @@ const fetchEvents = (start: string, end: string | undefined): Promise<EventsResp
         .then(data => data as EventsResponse);
 };
 
-export function useEventList(start: string, end: string | undefined) {
+export function useEventList(start: Date, end?: Date) {
     const [cookies, setCookie, removeCookie] = useCookies([ttTok]);
     return useQuery<EventsResponse, ApiError>(['eventList', start, end], () => fetchEvents(start, end),
         {
