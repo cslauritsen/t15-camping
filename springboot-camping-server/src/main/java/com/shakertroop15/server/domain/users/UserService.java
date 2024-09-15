@@ -1,5 +1,6 @@
 package com.shakertroop15.server.domain.users;
 
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -24,12 +25,11 @@ public class UserService {
                 .collect(Collectors.toMap(User::getUserId, Function.identity()));
 
         apiMap.values()
-                .stream()
                 .forEach(apiUser -> {
-                    var dbUser = userRepository.findByUserId(apiUser.getUserId()).orElse(apiUser);
-                    boolean annualFee = dbUser.isAnnualFee();
-                    boolean active = dbUser.isActive();
-                    boolean deleted = dbUser.isDeleted();
+                    val dbUser = userRepository.findById(apiUser.getUserId()).orElse(apiUser);
+                    val annualFee = dbUser.isAnnualFee();
+                    val active = dbUser.isActive();
+                    val deleted = dbUser.isDeleted();
                     User.map(apiUser, dbUser);
                     dbUser.setActive(active);
                     dbUser.setAnnualFee(annualFee);

@@ -1,13 +1,12 @@
-import {useMemo, useState} from "react";
-import {useQuery} from "react-query";
+import {useMemo} from "react";
 import {useEventList} from "./api";
-import {Event, EventsResponse, ApiError} from "./Event";
-import {Spinner, Form} from "react-bootstrap";
+import {Event} from "./Event";
+import {Form, Spinner} from "react-bootstrap";
 import {CampoutOption} from "./CampoutOption";
 
 interface Props {
-    start: string;
-    end?: string;
+    start: Date;
+    end?: Date;
     onSelect?: (event: Event, eventId: number) => void;
 }
 

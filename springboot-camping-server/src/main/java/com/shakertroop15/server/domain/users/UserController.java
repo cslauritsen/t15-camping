@@ -1,10 +1,9 @@
 package com.shakertroop15.server.domain.users;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpSession;
+import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
-import org.checkerframework.checker.units.qual.A;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,17 +11,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.reactive.function.BodyExtractors;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.netty.http.client.HttpClient;
-import reactor.netty.transport.ProxyProvider;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
@@ -30,6 +27,7 @@ import java.util.stream.Collectors;
 
 @Log4j2
 @Controller
+@Data
 public class UserController {
 
     public static final String USERS_RESPONSE = "USERS_RESPONSE";
@@ -39,7 +37,6 @@ public class UserController {
 
     @Value("${app.troopTrack.baseUrl}")
     private String baseUrl;
-
 
     private final UserRepository userRepository;
     private final UserService userService;
@@ -143,7 +140,7 @@ public class UserController {
     public @ResponseBody
     ResponseEntity<User> findUserByUserId(@PathVariable String userId) {
         WebClient client = WebClient.create();
-        val res = userRepository.findByUserId(userId);
+        val res = userRepository.findById(userId);
         return res
                 .map(u -> ResponseEntity.ok(u))
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -152,7 +149,7 @@ public class UserController {
     @PostMapping("/user")
     public @ResponseBody
     ResponseEntity<User> updateUserByTtid(@RequestBody User user) {
-        val res = userRepository.findByUserId(user.getUserId());
+        val res = userRepository.findById(user.getUserId());
         res.ifPresent(u -> {
             u.setAnnualFee(user.isAnnualFee());
             userRepository.save(u);
@@ -164,10 +161,12 @@ public class UserController {
 
     @PostMapping("/user/{userId}/custom")
     public @ResponseBody
-    ResponseEntity<User> setCustom(HttpSession session, @PathVariable String userId,
-                                   @RequestParam Map<String, String> allParams) {
+    ResponseEntity<User> setCustom(
+            HttpSession session,
+            @PathVariable String userId,
+            @RequestParam Map<String, String> allParams) {
         if (session.getAttribute(USER_TOKEN) instanceof String userToken) {
-            val res = userRepository.findByUserId(userId);
+            val res = userRepository.findById(userId);
             if (res.isEmpty()) {
                 return ResponseEntity.notFound().build();
             }

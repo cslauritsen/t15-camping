@@ -1,4 +1,4 @@
-import React, {ChangeEvent, useCallback, useMemo, useState} from "react";
+import React, {useCallback, useMemo, useState} from "react";
 import {useEvent} from "./api";
 import {Col, Container, Row, Spinner} from "react-bootstrap";
 import styles from "./UserList.module.css";
@@ -9,7 +9,7 @@ import {User} from "./User";
 import {CalendarCheckFill, CalendarXFill, HandThumbsDownFill, HandThumbsUpFill} from "react-bootstrap-icons";
 import {FilterSelect} from "./FilterSelect";
 import {Filter} from "./Filter";
-import {formatDate, findLastAug1} from "./dates";
+import {findLastAug1} from "./dates";
 
 interface Props {
     users: User[];
@@ -31,6 +31,7 @@ const rotateFilter = (previous: Filter) => {
 };
 
 export function List(props: Props) {
+    const startDate = useMemo(() =>  findLastAug1(), [])
     const [eventId, setEventId] = useState<number | undefined>();
     const [annualFeeFilter, setAnnualFeeFilter] = useState<Filter>('any');
     const [eventFilter, setEventFilter] = useState<Filter>('any');
@@ -85,9 +86,6 @@ export function List(props: Props) {
     ]);
 
     let striped = 0;
-    const startDate = findLastAug1()
-    const JULY = 6
-    const endDate = new Date(startDate.getFullYear() + 1, JULY, 31)
     return (
         <>
             { props?.title ? <h2>{props?.title}</h2> : null }
@@ -107,8 +105,7 @@ export function List(props: Props) {
                             </Col>
                             <Col>
                                 <CampoutSelect
-                                    start={formatDate(startDate)}
-                                    end={formatDate(endDate)}
+                                    start={startDate}
                                     onSelect={(e, eid) => setEventId(eid)}
                                 />
                                 <FilterSelect onSelect={v => setEventFilter(v)} />
@@ -152,7 +149,6 @@ export function List(props: Props) {
                                                         ?.find(i => i.user_id == u.user_id)}/>
                                         }
                                     </Col>
-
                                 </>
                                 : null}
                             <Col xs={2} lg={1} className={[styles.hdr, styles.Center, 'd-sm-block'].join(' ')}>

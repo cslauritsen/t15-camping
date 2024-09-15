@@ -7,7 +7,7 @@ import {getBaseUrl} from "./baseUrl";
 export function SyncMenuItem(props: any) {
     const [show, setShow] = useState(false);
     const [message, setMessage] = useState('');
-    const [cookies, setCookie, removeCookie] = useCookies([ttTok]);
+    const removeCookie = useCookies([ttTok])[2];
     const [syncing, setSyncing] = useState(false);
     const synch = () => {
         console.log(`synch start`);

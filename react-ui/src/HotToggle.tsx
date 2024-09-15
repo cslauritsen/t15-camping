@@ -44,7 +44,7 @@ export function HotToggle(props: Props) {
                 console.log(`mutation onSuccess, updated user ${variables.userId} to ${JSON.stringify(data)}`);
             },
             onError: (error, variables) => {
-                console.log(`mutation onError`);
+                console.error(`mutation onError: ${error}`);
                 const resp = error as Response;
                 setShow(true);
                 if (resp?.status === 404) {

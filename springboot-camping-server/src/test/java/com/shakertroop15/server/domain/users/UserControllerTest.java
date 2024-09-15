@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -21,6 +22,11 @@ class UserControllerTest {
     @Mock
     private HttpSession session;
 
+    @Mock
+    private UserService userService;
+    @Mock
+    private UserRepository userRepository;
+
     AutoCloseable closeable;
 
     @BeforeEach
@@ -28,7 +34,8 @@ class UserControllerTest {
         mockBackEnd = new MockWebServer();
         mockBackEnd.start();
         closeable = MockitoAnnotations.openMocks(this);
-        userController = new UserController(mockBackEnd.url("/").toString());
+        userController = new UserController(userRepository, userService, WebClient.create());
+        userController.setBaseUrl(mockBackEnd.url("/").toString());
     }
 
     @AfterEach
@@ -43,8 +50,7 @@ class UserControllerTest {
         try {
             var response = userController.login(session, "login", "password");
             fail("expected exception");
-        }
-        catch (WebClientResponseException e) {
+        } catch (WebClientResponseException e) {
             assertEquals(404, e.getStatusCode().value());
         }
     }
@@ -55,8 +61,7 @@ class UserControllerTest {
         try {
             var response = userController.login(session, "login", "password");
             fail("expected exception");
-        }
-        catch (WebClientResponseException e) {
+        } catch (WebClientResponseException e) {
             assertEquals(401, e.getStatusCode().value());
         }
     }

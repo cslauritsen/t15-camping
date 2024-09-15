@@ -1,6 +1,6 @@
 export function findLastAug1(): Date {
     let millis = new Date().getTime()
-    const AUGUST = 7
+    const AUGUST = 7 // 0-based
     let d = new Date(millis)
     console.debug(`Starting date: ${d}`)
     while (!(d.getDate() === 1 && d.getMonth() === AUGUST)) {

@@ -1,6 +1,5 @@
 package com.shakertroop15.server.domain.qbo.customer;
 
-import com.shakertroop15.server.domain.users.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 

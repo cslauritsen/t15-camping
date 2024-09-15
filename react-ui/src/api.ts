@@ -86,9 +86,12 @@ export function useUser(userId: number) {
     );
 }
 
-const fetchEvents = (start: Date, end?: Date): Promise<EventsResponse> => {
-    let url = `${getBaseUrl()}/events?start=${formatDate(start)}`;
-    url = end ? url + `&end=${formatDate(end)}` : url;
+function fetchEvents(start: Date, end?: Date): Promise<EventsResponse> {
+    if (!end) {
+        end = new Date(start);
+        end.setFullYear(end.getFullYear() + 1);
+    }
+    const url = `${getBaseUrl()}/events?start=${formatDate(start)}&end=${formatDate(end)}`;
     return fetch(new Request(url,
         {
             method: "GET",
@@ -106,7 +109,7 @@ const fetchEvents = (start: Date, end?: Date): Promise<EventsResponse> => {
             }
         })
         .then(data => data as EventsResponse);
-};
+}
 
 export function useEventList(start: Date, end?: Date) {
     const [cookies, setCookie, removeCookie] = useCookies([ttTok]);
