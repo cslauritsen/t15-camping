@@ -9,6 +9,7 @@ import {User} from "./User";
 import {CalendarCheckFill, CalendarXFill, HandThumbsDownFill, HandThumbsUpFill} from "react-bootstrap-icons";
 import {FilterSelect} from "./FilterSelect";
 import {Filter} from "./Filter";
+import {formatDate, findLastAug1} from "./dates";
 
 interface Props {
     users: User[];
@@ -16,28 +17,6 @@ interface Props {
     filter: (u: User) => boolean;
     scouts?: boolean;
     update?: () => void;
-}
-
-function findLastAug1() {
-    let millis = new Date().getTime()
-    const AUGUST = 7
-    let d = new Date(millis)
-    console.debug(`Starting date: ${d}`)
-    while(! (d.getDate() === 1 && d.getMonth() === AUGUST)) {
-        millis -= 86400000
-        d = new Date(millis)
-        console.debug(`new date: ${d}`)
-    }
-    return d
-}
-
-function formatDate(d: Date) {
-    const month = d.getMonth() + 1
-    const day = d.getDate()
-    const dayPrefix = day < 10 ? '0' : ''
-    const monthPrefix = month < 10 ? '0' : ''
-
-    return `${d.getFullYear()}-${monthPrefix}${d.getMonth() + 1}-${dayPrefix}${d.getDate()}`
 }
 
 const rotateFilter = (previous: Filter) => {

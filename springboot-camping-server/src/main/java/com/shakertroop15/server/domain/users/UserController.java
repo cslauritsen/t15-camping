@@ -1,5 +1,6 @@
 package com.shakertroop15.server.domain.users;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
@@ -12,8 +13,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.BodyExtractors;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -43,10 +48,14 @@ public class UserController {
         this.baseUrl = baseUrl;
     }
 
+
     @PostMapping("/user/login")
-    public ResponseEntity<TokenResponse> login(HttpSession session, @RequestParam String login, @RequestParam String password) {
+    public ResponseEntity<TokenResponse> login(
+            HttpSession session,
+            @RequestParam String login,
+            @RequestParam String password) {
         var client = WebClient.create();
-        var tokenResponse = client.post()
+        var tokenResponseStr = client.post()
                 .uri(baseUrl + "/tokens")
                 .header("X-Partner-Token", partnerToken)
                 .header("X-Username", login)
@@ -57,25 +66,30 @@ public class UserController {
                     log.error("Error logging in: " + clientResponse.statusCode());
                     return clientResponse.createException();
                 })
-                .bodyToMono(TokenResponse.class)
+                .bodyToMono(String.class)
                 .block();
 
-//        var tokenResponse = response.getBody();
-        var privs = tokenResponse.getUsers().stream().findFirst().map(
-                u -> u.getPrivileges().stream().collect(Collectors.joining(", "))
-        ).orElse("wooga");
+        var tokenResponse = Optional
+                .ofNullable(tokenResponseStr)
+                .map(s -> {
+                    var mapper = new ObjectMapper();
+                    try {
+                        return mapper.readValue(s.getBytes(StandardCharsets.UTF_8), TokenResponse.class);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).orElseThrow(() -> new RuntimeException("No token response found"));
 
-        var userTok = tokenResponse.getUsers()
-                .stream()
-                .findFirst()
-                .map(u -> u.getToken())
-                .orElseThrow();
-
+        var privs = new ArrayList<String>();
+        Optional.ofNullable(tokenResponse.getUsers())
+                .flatMap(users -> users.stream().findFirst())
+                .ifPresent(u -> privs.addAll(u.getPrivileges()));
+        Optional.ofNullable(tokenResponse.getUsers())
+                .flatMap(users -> users.stream().findFirst())
+                .map(UserTokenRecord::getToken)
+                .ifPresent(t -> session.setAttribute(USER_TOKEN, t));
         log.info("User {} logged in with privileges {}", login, privs);
-
-        session.setAttribute(USER_TOKEN, userTok);
-
-        return ResponseEntity.ok(tokenResponse);
+        return  ResponseEntity.ok(tokenResponse);
     }
 
     @GetMapping("/users")
@@ -156,7 +170,7 @@ public class UserController {
     @PostMapping("/user/{userId}/custom")
     public @ResponseBody
     ResponseEntity<User> setCustom(HttpSession session, @PathVariable String userId,
-                                  @RequestParam Map<String, String> allParams) {
+                                   @RequestParam Map<String, String> allParams) {
         if (session.getAttribute(USER_TOKEN) instanceof String userToken) {
             val res = userRepository.findByUserId(userId);
             if (res.isEmpty()) {
