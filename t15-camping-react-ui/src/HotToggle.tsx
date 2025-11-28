@@ -12,6 +12,7 @@ interface Props {
     trueNode?: ReactNode;
     falseNode?: ReactNode;
     onChange?: () => void;
+    confirm?: () => boolean;
 }
 
 const mutationFn = (vars: any) => fetch(
@@ -63,11 +64,13 @@ export function HotToggle(props: Props) {
             <Button size={'lg'} variant={'link'}
                     style={{textDecoration: 'none'}}
                     onClick={() => {
-                        const newState = !state;
-                        mutation.mutate({name: props.name, newState: newState, userId: props.userId});
-                        if (mutation.isSuccess) {
-                            setState(newState);
-                            props?.onChange?.();
+                        if (props.confirm === undefined || props.confirm()) {
+                            const newState = !state;
+                            mutation.mutate({name: props.name, newState: newState, userId: props.userId});
+                            if (mutation.isSuccess) {
+                                setState(newState);
+                                props?.onChange?.();
+                            }
                         }
                     }}
             >
