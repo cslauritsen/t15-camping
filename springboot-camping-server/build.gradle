@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.shakertroop15'
-version = '0.0.1-SNAPSHOT'
+version = project.findProperty("version") //'0.0.1-SNAPSHOT'
 
 repositories {
 	mavenCentral()
@@ -28,4 +28,9 @@ tasks.named('test') {
 
 bootRun {
 	systemProperty "spring.profiles.active", springActiveProfiles
+}
+
+bootBuildImage {
+    imagePlatform = "linux/arm64"
+    imageName = 'cslauritsen/t15-camping-backend:' + project.version
 }
