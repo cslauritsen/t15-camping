@@ -134,6 +134,7 @@ export function List(props: Props) {
                                             falseNode={<CalendarXFill style={{color: 'red'}}/>}
                                             value={!!u?.annual_fee}
                                             onChange={props?.update}
+                                            confirm={() => confirm(`Change annual fee status for ${u.first_name} ${u.last_name}?`)}
                                         />
                                     </Col>
                                     <Col>

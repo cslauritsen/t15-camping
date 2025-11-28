@@ -98,8 +98,8 @@ async fn mongo_test() -> mongodb::error::Result<()> {
     let coll: mongodb::Collection<Document> = db.collection("users");
     let cnt = coll.count_documents(None, None).await?;
     println!("Users collection count: {}", cnt);
-    let u = coll.find_one(doc! { "age": 25}, None).await.expect("Failed to find user");
-    match u {
+    // let u = coll.find_one(doc! { "age": 25}, None).await.expect("Failed to find user");
+    match coll.find_one(doc! { "age": 25}, None).await.expect("Failed to find user") {
         Some(user) => {
             println!("User: {:?}", user);
         }

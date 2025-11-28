@@ -26,6 +26,8 @@ public class LocalCorsConfig {
         config.addAllowedOrigin("http://localhost");
         config.addAllowedOrigin("https://localhost");
         config.addAllowedOrigin("https://t15camping.tech");
+        config.addAllowedOrigin("https://t15.planetlauritsen.com");
+        config.addAllowedOrigin("https://t15camping.planetlauritsen.com");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", config);

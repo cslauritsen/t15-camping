@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="Gradle: org.springframework.data:spring-data-mongodb:4.5.6" type="java-imported" external-system-id="GRADLE">
+    <properties groupId="org.springframework.data" artifactId="spring-data-mongodb" version="4.5.6" baseVersion="4.5.6" />
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.data/spring-data-mongodb/4.5.6/86cb1e0b65e366ab63e78aff6f41f8bfc97a516a/spring-data-mongodb-4.5.6.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
