@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "t15-camping-backend.fullname" . }}-test-connection"
+  labels:
+    {{- include "t15-camping-backend.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "t15-camping-backend.fullname" . }}:{{ .Values.service.port }}']
+  restartPolicy: Never

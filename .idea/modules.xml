@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/server.iml" filepath="$PROJECT_DIR$/.idea/modules/server.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/server.main.iml" filepath="$PROJECT_DIR$/.idea/modules/server.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/server.test.iml" filepath="$PROJECT_DIR$/.idea/modules/server.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/t15-camping-backend.iml" filepath="$PROJECT_DIR$/.idea/modules/t15-camping-backend.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/t15-camping-backend.main.iml" filepath="$PROJECT_DIR$/.idea/modules/t15-camping-backend.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/t15-camping-backend.test.iml" filepath="$PROJECT_DIR$/.idea/modules/t15-camping-backend.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/t15-camping-react-ui/t15-camping-react-ui.iml" filepath="$PROJECT_DIR$/t15-camping-react-ui/t15-camping-react-ui.iml" />
     </modules>
   </component>

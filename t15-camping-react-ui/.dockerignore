@@ -1,0 +1,10 @@
+Dockerfile
+.idea
+.github
+dist
+build
+*.iml
+node_modules/
+.yarn/
+.idea/
+.git/

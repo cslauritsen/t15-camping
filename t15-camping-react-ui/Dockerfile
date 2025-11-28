@@ -22,7 +22,7 @@ COPY . .
 ARG APP_VER
 RUN pnpm pkg set version=$APP_VER
 # Build the app
-RUN pnpm run build
+RUN pnpm build
 
 FROM nginx:1.27.5-alpine-slim
 LABEL maintainer="chad@planetlauritsen.com"
@@ -30,4 +30,4 @@ WORKDIR /usr/share/nginx
 COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
 RUN rm -fr html
 
-COPY --from=builder /app/dist ./html
+COPY --from=builder /app/build ./html

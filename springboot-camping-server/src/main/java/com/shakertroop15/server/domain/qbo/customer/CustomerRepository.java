@@ -7,8 +7,5 @@ import java.util.Optional;
 
 
 public interface CustomerRepository extends MongoRepository<QboCustomer, String> {
-    @Query("{id: ?0}")
-    Optional<QboCustomer> findById(String userId);
-
     long count();
 }

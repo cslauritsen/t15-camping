@@ -8,8 +8,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -34,8 +34,10 @@ class UserControllerTest {
         mockBackEnd = new MockWebServer();
         mockBackEnd.start();
         closeable = MockitoAnnotations.openMocks(this);
-        userController = new UserController(userRepository, userService, WebClient.create());
+        RestClient restClient = RestClient.builder().baseUrl(mockBackEnd.url("/").toString()).build();
+        userController = new UserController(userRepository, userService, restClient);
         userController.setBaseUrl(mockBackEnd.url("/").toString());
+        userController.setPartnerToken("hello");
     }
 
     @AfterEach
@@ -48,9 +50,9 @@ class UserControllerTest {
     void login404Returns404() {
         mockBackEnd.enqueue(new MockResponse().setResponseCode(404));
         try {
-            var response = userController.login(session, "login", "password");
+            userController.login(session, "login", "password");
             fail("expected exception");
-        } catch (WebClientResponseException e) {
+        } catch (RestClientResponseException e) {
             assertEquals(404, e.getStatusCode().value());
         }
     }
@@ -59,9 +61,9 @@ class UserControllerTest {
     void login401Returns401() {
         mockBackEnd.enqueue(new MockResponse().setResponseCode(401));
         try {
-            var response = userController.login(session, "login", "password");
+            userController.login(session, "login", "password");
             fail("expected exception");
-        } catch (WebClientResponseException e) {
+        } catch (RestClientResponseException e) {
             assertEquals(401, e.getStatusCode().value());
         }
     }

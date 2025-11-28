@@ -50,6 +50,7 @@
   "devDependencies": {
     "@types/react-bootstrap": "^0.32.32",
     "@types/react-query": "^1.2.9",
-    "@types/universal-cookie": "^3.0.0"
+    "@types/universal-cookie": "^3.0.0",
+    "eslint-config-react-app": "^7.0.1"
   }
 }
