@@ -6,7 +6,7 @@ on:
   workflow_dispatch:  # Allow manual triggering
 
 jobs:
-  build:
+  build-backend-image:
     runs-on: [ubuntu-latest, ARM64]
     permissions:
       contents: read
