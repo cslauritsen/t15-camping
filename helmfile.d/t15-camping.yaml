@@ -1,13 +1,7 @@
 releases:
   - name: t15-camping
-    chart: ../charts/t15-camping
     namespace: t15-camping
     createNamespace: true
+    chart: oci://docker.io/cslauritsen/t15-camping-chart
+    version: 1.0.4
     kubeContext: rpi
-    values:
-      - backend:
-          image:
-            tag: "0.0.5"
-      - ui:
-          image:
-            tag: "0.0.5"
