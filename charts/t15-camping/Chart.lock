@@ -1,0 +1,9 @@
+dependencies:
+- name: t15-camping-ui
+  repository: oci://docker.io/cslauritsen
+  version: 0.0.5
+- name: t15-camping-backend
+  repository: oci://docker.io/cslauritsen
+  version: 0.0.5
+digest: sha256:b7e03992a7007884de91061d6bc0e805c5d7fc5c1c84358843dff996c817130d
+generated: "2025-11-28T17:36:23.44291-05:00"

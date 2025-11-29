@@ -1,0 +1,18 @@
+releases:
+  - name: t15-camping
+    chart: ../charts/t15-camping
+    namespace: t15-camping
+    createNamespace: true
+    kubeContext: rpi
+    values:
+      - backend:
+          image:
+            tag: "0.0.5"
+      - ui:
+          image:
+            tag: "0.0.5"
+  - name: t15-camping-ingress
+    chart: ./ingress
+    namespace: t15-camping
+    createNamespace: true
+    kubeContext: rpi
