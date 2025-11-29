@@ -1,9 +1,9 @@
 dependencies:
 - name: t15-camping-ui-chart
   repository: oci://docker.io/cslauritsen
-  version: 1.0.5
+  version: 1.0.6
 - name: t15-camping-backend-chart
   repository: oci://docker.io/cslauritsen
-  version: 1.0.5
-digest: sha256:9c0685de0d17510e6571119c25610f390e5d0c5321cb8e15afa4985410c09ee3
-generated: "2025-11-28T21:03:38.745165-05:00"
+  version: 1.0.6
+digest: sha256:2282f4cc42bdeaae86b336c687c9f5d09e57e25c376d9b91c0a65e8dc7393e6e
+generated: "2025-11-28T21:30:33.360462-05:00"

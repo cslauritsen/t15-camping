@@ -4,16 +4,16 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-dns
     nginx.ingress.kubernetes.io/proxy-body-size: 10m
-  name: t15-camping
+  name: {{ .Release.Name }}
 spec:
   ingressClassName: nginx
   rules:
-  - host: t15.home.planetlauritsen.com
+  - host: {{ .Values.ingressHost | default "t15.home.planetlauritsen.com" }}
     http:
       paths:
       - backend:
           service:
-            name: backend
+            name: {{ .Release.Name }}-backend
             port:
               number: 8080
         path: /api
@@ -21,12 +21,12 @@ spec:
 
       - backend:
           service:
-            name: ui
+            name: {{ .Release.Name }}-ui
             port:
               number: 80
         path: /
         pathType: Prefix
   tls:
   - hosts:
-    - t15.home.planetlauritsen.com
-    secretName: t15-camping-tls
+    - {{ .Values.ingressHost | default "t15.home.planetlauritsen.com" }}
+    secretName: {{ .Release.Name }}-tls

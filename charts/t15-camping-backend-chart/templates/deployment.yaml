@@ -43,7 +43,7 @@ spec:
           envFrom:
             - secretRef:
                 name: {{ include "t15-camping-backend.fullname" . }}-secret
-                optional: true
+                optional: false
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}

@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 set -e
 
 tmp=$(mktemp -d)
@@ -39,8 +38,9 @@ popd
 
 
 pushd t15-camping-react-ui
-docker build --build-arg APP_VER=$version -t cslauritsen/t15-camping-frontend:$version .
-docker push cslauritsen/t15-camping-frontend:$version
+docker build --build-arg APP_VER=$version -t cslauritsen/t15-camping-ui:$version .
+docker push cslauritsen/t15-camping-ui:$version
 popd
 
 helmup $version
+yq -i ".releases[] |=  .version = \"$version\"" ./helmfile.d/t15-camping.yaml

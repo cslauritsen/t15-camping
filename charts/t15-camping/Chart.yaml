@@ -23,8 +23,8 @@ dependencies:
   - name: t15-camping-ui-chart
     alias: ui
     repository: oci://docker.io/cslauritsen
-    version: "1.0.5"
+    version: "1.0.6"
   - name: t15-camping-backend-chart
     alias: backend
     repository: oci://docker.io/cslauritsen
-    version: "1.0.5"
+    version: "1.0.6"
